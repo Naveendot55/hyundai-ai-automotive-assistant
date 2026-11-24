@@ -1,179 +1,225 @@
 # Hyundai AI Automotive Assistant
 
-> **Production-grade Retrieval-Augmented Generation (RAG) Automotive Intelligence System for Hyundai Motor India.**  
-> Built with **React 18**, **Node.js**, **Express.js**, **MongoDB Atlas Vector Search**, and **Google Gemini API**.
+A Retrieval-Augmented Generation (RAG) based automotive intelligence platform that enables users to interact with Hyundai vehicle brochures and retrieve accurate, source-grounded information.
+
+**Developed as a technical assignment for Cyepro Solutions.**
+
+**Live Application:** https://hyundai-ai-frontend.vercel.app  
+**GitHub Repository:** https://github.com/Naveendot55/hyundai-ai-automotive-assistant  
+**Backend:** https://hyundai-ai-backend.onrender.com
 
 ---
 
-## 📋 Table of Contents
-1. [Project Overview](#-project-overview)
-2. [Core Architecture & Technical Stack](#-core-architecture--technical-stack)
-3. [The 4 Required Automotive AI Capabilities](#-the-4-required-automotive-ai-capabilities)
-4. [RAG Pipeline & MongoDB Vector Search](#-rag-pipeline--mongodb-vector-search)
-5. [Database Architecture](#-database-architecture)
-6. [Atlas Vector Search Index Configuration](#-atlas-vector-search-index-configuration)
-7. [Installation & Local Setup](#-installation--local-setup)
-8. [Environment Variables](#-environment-variables)
-9. [Automated Test Suite](#-automated-test-suite)
-10. [REST API Documentation](#-rest-api-documentation)
-11. [Deployment Guide (Vercel & Render)](#-deployment-guide-vercel--render)
+## 1. Project Overview
+
+The Hyundai AI Automotive Assistant transforms Hyundai vehicle brochures in PDF format into searchable knowledge sources using embeddings and MongoDB Atlas Vector Search.
+
+Users can ask questions about vehicle specifications, compare different models, explore variant differences, and receive customer-oriented recommendations.
+
+The application uses a RAG architecture to retrieve relevant brochure excerpts before generating responses through Google Gemini.
+
+### Key Features
+
+- Secure user registration and login using JWT authentication.
+- PDF brochure upload and text extraction.
+- Semantic document chunking and embedding generation.
+- MongoDB Atlas Vector Search.
+- AI-powered automotive question answering.
+- Multi-vehicle and variant comparisons.
+- Source citations with document names and page numbers.
+- Conversation history management.
+- Explicit handling of information not found in uploaded documents.
 
 ---
 
-## 🌟 Project Overview
-
-The **Hyundai AI Automotive Assistant** is a technical assignment project engineered for **Cyepro Solutions**. It transforms static vehicle brochures (PDF format) into structured, queryable knowledge vectors, allowing automotive buyers and sales consultants to query technical specifications with **guaranteed factual accuracy**.
-
-### 🚫 The Grounding Guarantee: Zero Hallucinations
-- Vehicle specifications are **never invented or assumed**.
-- Factual claims are strictly grounded in retrieved brochure excerpts.
-- Missing or undocumented specifications are explicitly disclosed.
-- Every AI response contains transparent **source citations** including document name, vehicle model, page number, and vector relevance score.
-
----
-
-## 🛠️ Core Architecture & Technical Stack
-
-```
-[ Frontend: React 18 + Vite + Tailwind CSS ]
-                     │  (JWT Authenticated REST APIs)
-                     ▼
-[ Backend: Node.js + Express.js MVC ]
-         │                        │
-         ▼                        ▼
-[ Ingestion Pipeline ]      [ RAG Retrieval Engine ]
-   • Multer (PDF Upload)       • Query Embedding (gemini-embedding-001)
-   • pdf-parse (Text & Pager)  • MongoDB Atlas ($vectorSearch)
-   • Semantic Chunking (800c)  • Multi-Brochure Ranking
-   • Gemini Embeddings (768d)  • Grounded Gemini Prompting (gemini-3.1-flash-lite)
-         │                        │
-         └───────────┬────────────┘
-                     ▼
-[ Database: MongoDB Atlas ]
-   • Users (bcrypt + JWT)
-   • Documents (metadata & statuses)
-   • DocumentChunks (768-dim embeddings + indexes)
-   • ChatHistory (conversations & citations)
-```
+## 2. Technology Stack
 
 | Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React 18, Vite, Tailwind CSS, React Router v7, Axios, Lucide React, React Markdown, Remark GFM |
-| **Backend** | Node.js, Express.js (ES Modules), Mongoose, Multer, `pdf-parse`, `pdf-lib`, `bcryptjs`, `jsonwebtoken` |
-| **AI & Embeddings**| Google Gemini API (`@google/generative-ai`), `gemini-embedding-001` (768-dim), `gemini-3.1-flash-lite-preview` / `gemini-3.1-flash-lite` |
-| **Vector Storage** | MongoDB Atlas Vector Search (`$vectorSearch` aggregation) with Cosine engine fallback |
-| **Deployment** | Vercel (Frontend SPA), Render (Backend Web Service), MongoDB Atlas (Database Cluster) |
+|---|---|
+| Frontend | React 18, Vite, Tailwind CSS |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas, Mongoose |
+| AI Model | Google Gemini API |
+| Embeddings | gemini-embedding-001 |
+| Vector Search | MongoDB Atlas Vector Search |
+| Authentication | JWT, bcryptjs |
+| PDF Processing | pdf-parse, pdf-lib |
+| API Communication | Axios |
+| Deployment | Vercel, Render |
 
 ---
 
-## 🎯 The 4 Required Automotive AI Capabilities
+## 3. Automotive AI Capabilities
 
-### 🚗 Capability A: Hyundai Alcazar Features
-- Categorizes features under structured headings:
-  - **Engine specifications** (1.5 Turbo GDi 160 PS / 253 Nm vs 1.5 Diesel 116 PS / 250 Nm)
-  - **Safety features** (6 standard airbags, ESC, VSM, HAC, 4-wheel disc brakes)
-  - **Comfort features** (Panoramic sunroof, 2nd-row captain seats, ventilated seats)
-  - **Technology features** (Dual 10.25" screens, Bose 8-speaker audio, SmartSense ADAS)
-  - **Interior / Exterior / Performance**
-- Unsupported categories explicitly return: *"Not specified in uploaded brochure"*.
+The application implements four core automotive intelligence capabilities.
 
-### ⚖️ Capability B: Alcazar vs Creta Comparison
-- Dual-brochure retrieval: extracts excerpts from both `Hyundai Alcazar` and `Hyundai Creta` brochures.
-- Generates structured comparison tables across:
-  - Engine & Transmission options
-  - Performance outputs
-  - Safety systems
-  - Cabin dimensions & Seating capacity (6/7-seater vs 5-seater)
-  - Luggage boot space
+### A. Hyundai Alcazar Feature Analysis
 
-### 🏷️ Capability C: Alcazar Variant Comparison
-- Compares trim tiers: **Prestige** (entry), **Platinum** (mid-level), and **Signature** (top-tier ADAS flagship).
-- Analyzes powertrain options, standard vs optional equipment, wheel sizes, and tech packages.
+Provides structured information about:
 
-### 🧭 Capability D: i20 vs Aura Customer-Centric Recommendations
-- Evaluates customer requirements:
-  - Daily city commuting vs long-distance highway road trips
-  - Boot space requirements (i20 311 L vs Aura 402 L dedicated sedan trunk)
-  - Fuel economy & CNG availability (Aura 1.2 Bi-Fuel CNG)
-  - Compact urban manoeuvrability (i20 5.1m turning radius)
-- Produces a head-to-head comparison table, advantages of each vehicle, a clear recommendation, and supporting reasons.
+- Engine specifications.
+- Safety features.
+- Comfort and convenience.
+- Interior and exterior features.
+- Technology and infotainment.
+- Performance specifications.
+
+### B. Hyundai Alcazar vs Hyundai Creta Comparison
+
+Retrieves information from multiple vehicle brochures and generates structured comparisons covering:
+
+- Engine and transmission.
+- Performance.
+- Safety.
+- Dimensions.
+- Seating capacity.
+- Available features.
+
+### C. Hyundai Alcazar Variant Comparison
+
+Compares different variants, including:
+
+- Prestige.
+- Platinum.
+- Signature.
+
+Highlights differences in equipment, technology, safety, and available features based on retrieved brochure information.
+
+### D. Hyundai i20 vs Hyundai Aura Recommendations
+
+Provides customer-oriented recommendations based on requirements such as:
+
+- Daily city commuting.
+- Long-distance travel.
+- Boot space.
+- Fuel options.
+- Vehicle dimensions.
+- Practicality and convenience.
 
 ---
 
-## 🔄 RAG Pipeline & MongoDB Vector Search
+## 4. System Architecture
 
+```text
+              FRONTEND
+          React + Vite
+                |
+                | Axios REST API
+                | JWT Authentication
+                |
+                v
+              BACKEND
+         Node.js + Express
+                |
+       +--------+---------+
+       |                  |
+       v                  v
+  PDF Ingestion       RAG Engine
+       |                  |
+  PDF Extraction     Query Embedding
+       |                  |
+  Text Chunking      Vector Retrieval
+       |                  |
+  Gemini Embeddings  MongoDB Atlas
+       |                  |
+       +--------+---------+
+                |
+                v
+         Google Gemini API
+                |
+                v
+       Grounded AI Response
+                |
+                v
+      Frontend with Citations
 ```
-User Query
-   │
-   ▼
-[Intent Classifier] ── Detects Capability (A, B, C, D) & Target Models
-   │
-   ▼
-[Gemini Embedding] ── Generates 768-dim Query Vector (gemini-embedding-001)
-   │
-   ▼
-[MongoDB Atlas] ───── Executes $vectorSearch with vehicleModel filter
-   │
-   ▼
-[Retrieved Chunks] ── Top-k brochure excerpts with page numbers & scores
-   │
-   ▼
-[Prompt Assembler] ── Strict RAG System Prompt + Grounded Context
-   │
-   ▼
-[Google Gemini] ───── Generates response grounded ONLY in brochure facts
-   │
-   ▼
-Frontend Response ─── Formatted Markdown + Verified Source Reference Pills
-```
 
 ---
 
-## 🗄️ Database Architecture
+## 5. RAG Pipeline
 
-### 1. `Users` Collection
-- `name`: String (trimmed)
-- `email`: String (unique, validated)
-- `password`: String (bcrypt hashed, cost: 10)
-- `role`: String (`user` | `admin`)
-- `createdAt`: Date
+The application follows these steps to generate responses:
 
-### 2. `Documents` Collection
-- `fileName`: String (stored physical filename)
-- `originalName`: String (original user filename)
-- `vehicleModel`: String (e.g. `Hyundai Alcazar`, `Hyundai Creta`, `Hyundai i20`, `Hyundai Aura`)
-- `storagePath`: String (physical filesystem path)
-- `fileSize`: Number (bytes)
-- `uploadedBy`: ObjectId (ref: User)
-- `processingStatus`: String (`Uploaded` → `Processing` → `Completed` | `Failed`)
-- `chunkCount`: Number
-- `pageCount`: Number
-- `uploadedAt`: Date
+1. User submits a question through the frontend.
+2. The backend generates an embedding for the query.
+3. MongoDB Atlas Vector Search retrieves semantically relevant document chunks.
+4. Retrieved brochure excerpts are assembled into the AI prompt.
+5. Google Gemini generates a response using the retrieved context.
+6. The backend returns the answer along with source references.
+7. The frontend displays the response and citations.
 
-### 3. `DocumentChunks` Collection
-- `documentId`: ObjectId (ref: Document, indexed)
-- `vehicleModel`: String (indexed)
-- `content`: String (clean semantic chunk)
-- `pageNumber`: Number
-- `chunkIndex`: Number
-- `embedding`: [Number] (768-dimensional vector)
-- `metadata`: Object (`{ fileName, charCount, pageNumber }`)
+### Grounding Strategy
 
-### 4. `ChatHistory` Collection
-- `userId`: ObjectId (ref: User, indexed)
-- `title`: String
-- `messages`: Array of:
-  - `role`: `user` | `assistant`
-  - `content`: String
-  - `capability`: String
-  - `sources`: Array of `{ documentName, vehicleModel, pageNumber, chunkText, relevanceScore }`
-  - `timestamp`: Date
+- Responses are based on retrieved brochure information.
+- Source references include document names and page numbers.
+- Missing information is identified rather than intentionally fabricated.
+- Retrieval results help users verify the information behind an answer.
 
 ---
 
-## 🔍 Atlas Vector Search Index Configuration
+## 6. Database Architecture
 
-When configuring your collection on **MongoDB Atlas**, create a Vector Search Index on the `documentchunks` collection with the following definition:
+The application uses MongoDB Atlas with the following collections.
+
+### Users
+
+Stores user account information.
+
+- name
+- email
+- password (bcrypt hashed)
+- role
+- createdAt
+
+### Documents
+
+Stores uploaded brochure metadata.
+
+- fileName
+- originalName
+- vehicleModel
+- storagePath
+- fileSize
+- uploadedBy
+- processingStatus
+- chunkCount
+- pageCount
+- uploadedAt
+
+### DocumentChunks
+
+Stores processed brochure content and embeddings.
+
+- documentId
+- vehicleModel
+- content
+- pageNumber
+- chunkIndex
+- embedding
+- metadata
+
+### ChatHistory
+
+Stores user conversations and retrieved source references.
+
+- userId
+- title
+- messages
+- capability
+- sources
+- timestamp
+
+---
+
+## 7. MongoDB Atlas Vector Search
+
+The project uses a vector index named `vector_index`.
+
+Collection:
+
+`hyundai_ai_db.documentchunks`
+
+Index configuration:
 
 ```json
 {
@@ -187,162 +233,242 @@ When configuring your collection on **MongoDB Atlas**, create a Vector Search In
     {
       "type": "filter",
       "path": "vehicleModel"
-    },
-    {
-      "type": "filter",
-      "path": "documentId"
     }
   ]
 }
 ```
 
-*Index Name:* `vector_index`
-
-> **Note:** The backend contains an automatic, zero-configuration local Vector Search engine (calculating exact cosine similarity over candidate model chunks) so that tests, unit runs, and local environments work seamlessly even before an Atlas index is provisioned.
+The vector index enables semantic retrieval of relevant brochure content using 768-dimensional embeddings.
 
 ---
 
-## 🚀 Installation & Local Setup
+## 8. Local Installation
 
 ### Prerequisites
-- Node.js >= 18.0.0 (v20+ recommended)
-- MongoDB running locally on port 27017 or a MongoDB Atlas connection string
-- (Optional) Google Gemini API Key from Google AI Studio
 
-### Step 1: Clone and Install
+- Node.js 18 or higher.
+- npm.
+- MongoDB Atlas account or local MongoDB.
+- Google Gemini API key.
+
+### Step 1: Clone the Repository
+
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/hyundai-ai-automotive-assistant.git
-cd hyundai-ai-automotive-assistant
+git clone https://github.com/Naveendot55/hyundai-ai-automotive-assistant.git
 
-# Install backend dependencies
+cd hyundai-ai-automotive-assistant
+```
+
+### Step 2: Install Backend Dependencies
+
+```bash
 cd backend
 npm install
+```
 
-# Install frontend dependencies
+### Step 3: Install Frontend Dependencies
+
+```bash
 cd ../frontend
 npm install
 ```
 
-### Step 2: Configure Environment Variables
-Inside `backend/.env`:
+### Step 4: Configure Environment Variables
+
+Create a `.env` file inside the backend directory.
+
+Example:
+
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/hyundai_ai_db
-JWT_SECRET=hyundai_secret_jwt_key_2026_cyepro_solutions
+
+MONGODB_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_secure_random_secret
 JWT_EXPIRES_IN=7d
-GEMINI_API_KEY=your_gemini_api_key_here
+
+GEMINI_API_KEY=your_gemini_api_key
+
 EMBEDDING_MODEL=gemini-embedding-001
-GENERATIVE_MODEL=gemini-3.1-flash-lite-preview
+GENERATIVE_MODEL=your_supported_gemini_model
+
 EMBEDDING_DIMENSIONS=768
 MAX_FILE_SIZE_MB=25
 ```
 
-### Step 3: Seed Sample Hyundai Brochures
-Populate the database with official brochures and vector chunks for **Hyundai Alcazar**, **Hyundai Creta**, **Hyundai i20**, and **Hyundai Aura**:
-```bash
-cd backend
-npm run seed
-```
-*Creates the default specialist account:*
-- **Email:** `demo@hyundai-ai.com`
-- **Password:** `Hyundai2026!`
+Use your own credentials. Never commit actual API keys, database passwords, or JWT secrets to GitHub.
 
-### Step 4: Run the Application
-In separate terminal tabs:
+### Step 5: Start the Backend
+
+From the backend directory:
+
 ```bash
-# Terminal 1: Start Backend Server (http://localhost:5000)
-cd backend
 npm run dev
+```
 
-# Terminal 2: Start Frontend (http://localhost:5173)
+Backend:
+
+`http://localhost:5000`
+
+### Step 6: Start the Frontend
+
+Open another terminal:
+
+```bash
 cd frontend
 npm run dev
 ```
 
-Visit **http://localhost:5173** in your browser.
+Frontend:
+
+`http://localhost:5173`
 
 ---
 
-## 🧪 Automated Test Suite
+## 9. Automated Testing
 
-The project includes 6 automated test suites covering 32 distinct assertions across Auth, Document Ingestion, Semantic Chunking, Vector Retrieval, Production Guardrails, and RAG Grounding:
+The backend includes six automated test suites.
+
+| Test Suite | Assertions |
+|---|---:|
+| Authentication | 7 |
+| Document Management | 5 |
+| Vector Search | 3 |
+| End-to-End | 8 |
+| Production Enforcement | 3 |
+| RAG and Capabilities | 6 |
+| **Total** | **32** |
+
+### Run Tests
 
 ```bash
 cd backend
 npm test
 ```
 
-### Test Coverage:
-1. `tests/auth.test.js` (7/7): User registration, duplicate email rejection, login authentication, password mismatch rejection, JWT `/me` verification, 401 unauthorized blocking, token tampering prevention.
-2. `tests/document.test.js` (5/5): PDF upload via multipart form, text extraction, semantic chunking, page count verification, document listing, cascading chunk deletion.
-3. `tests/vectorSearch.test.js` (3/3): 768-dim embedding generation, cosine similarity math, vector top-k retrieval, vehicle model filtering.
-4. `tests/e2e.test.js` (8/8): Complete end-to-end verification of all 4 AI capabilities, multi-brochure comparisons, absence handling, and chat history persistence.
-5. `tests/productionEnforcement.test.js` (3/3): Production environment strictness ensuring missing API keys or unconfigured Atlas vector search strictly throw rather than falling back.
-6. `tests/ragAndCapabilities.test.js` (6/6): Multi-model brochure ingestion, single-model RAG, cross-brochure RAG, variant matrix comparison, customer advisory recommendation, and chat persistence.
+The test suites cover authentication, document processing, semantic retrieval, RAG capabilities, and production configuration enforcement.
 
 ---
 
-## 📡 REST API Documentation
+## 10. REST API Endpoints
 
-### Authentication Endpoints
-- `POST /api/auth/register` — Register new user
-  ```json
-  { "name": "Sales Consultant", "email": "consultant@hyundai.com", "password": "Password123!" }
-  ```
-- `POST /api/auth/login` — Login & receive JWT token
-  ```json
-  { "email": "consultant@hyundai.com", "password": "Password123!" }
-  ```
-- `GET /api/auth/me` *(Protected)* — Get current user profile
+### Authentication
 
-### Document Management Endpoints
-- `POST /api/documents/upload` *(Protected, Multipart)* — Upload Hyundai PDF brochure
-  - Fields: `brochure` (File, PDF), `vehicleModel` (String)
-  - Query: `?sync=true` for inline chunking and indexing
-- `GET /api/documents` *(Protected)* — List all brochures with chunk counts & status
-- `GET /api/documents/:id` *(Protected)* — Get brochure metadata and chunk previews
-- `DELETE /api/documents/:id` *(Protected)* — Delete brochure file, record, and all vector chunks
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a user |
+| POST | `/api/auth/login` | Authenticate a user |
+| GET | `/api/auth/me` | Retrieve authenticated user |
 
-### AI Chat & RAG Endpoints
-- `POST /api/chat` *(Protected)* — Submit query to RAG pipeline
-  ```json
-  {
-    "message": "Compare Hyundai Alcazar vs Hyundai Creta across engine and safety.",
-    "conversationId": null,
-    "vehicleModelFilter": null
-  }
-  ```
-- `GET /api/chat/history` *(Protected)* — List user's conversations
-- `GET /api/chat/history?conversationId=...` *(Protected)* — Get full conversation messages & sources
-- `DELETE /api/chat/history/:id` *(Protected)* — Delete conversation
+### Document Management
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/documents/upload` | Upload a PDF brochure |
+| GET | `/api/documents` | List uploaded brochures |
+| GET | `/api/documents/:id` | Retrieve document details |
+| DELETE | `/api/documents/:id` | Delete a document |
+
+### AI Chat
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/chat` | Submit an AI query |
+| GET | `/api/chat/history` | Retrieve conversations |
+| DELETE | `/api/chat/history/:id` | Delete a conversation |
+
+Protected endpoints require JWT authentication.
 
 ---
 
-## 🌐 Deployment Guide (Vercel & Render)
+## 11. Production Deployment
 
-### Frontend Deployment on Vercel
-1. Import repository on [Vercel](https://vercel.com).
-2. Set Root Directory to `frontend`.
-3. Framework Preset: `Vite`.
-4. Configure rewrites in `frontend/vercel.json` pointing `/api/(.*)` to your Render backend URL.
-5. Deploy.
+The application is deployed using three services.
 
-### Backend Deployment on Render
-1. Create a **Web Service** on [Render](https://render.com).
-2. Connect your repository.
-3. Set Root Directory to `backend` (or use `render.yaml` at root).
-4. Build Command: `npm install`
-5. Start Command: `npm start`
-6. Add Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `GEMINI_API_KEY`, `NODE_ENV=production`.
-7. Once deployed, run `npm run seed` to index the default brochures.
+### Frontend – Vercel
+
+- Platform: Vercel
+- Framework: Vite
+- Root Directory: `frontend`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
+Production environment variable:
+
+```env
+VITE_API_URL=https://hyundai-ai-backend.onrender.com/api
+```
+
+### Backend – Render
+
+- Platform: Render
+- Runtime: Node.js
+- Root Directory: `backend`
+- Build Command: `npm install`
+- Start Command: `npm start`
+
+Required backend environment variables include:
+
+- MONGODB_URI
+- JWT_SECRET
+- GEMINI_API_KEY
+- NODE_ENV
+- JWT_EXPIRES_IN
+- EMBEDDING_MODEL
+- GENERATIVE_MODEL
+- EMBEDDING_DIMENSIONS
+
+### Database – MongoDB Atlas
+
+- Database: `hyundai_ai_db`
+- Collections: Users, Documents, DocumentChunks, ChatHistory
+- Vector Index: `vector_index`
 
 ---
 
-## 👥 Submission Details
+## 12. Production Verification
 
-- **Project:** Hyundai AI Automotive Assistant
-- **Assignment By:** Cyepro Solutions
-- **Stack:** MERN (MongoDB Atlas, Express, React, Node) + Google Gemini RAG
-- **Default Demo Account:** `demo@hyundai-ai.com` / `Hyundai2026!`
+The deployed application was tested using the production frontend.
+
+| Test | Result |
+|---|---|
+| Frontend deployment | PASS |
+| Backend connectivity | PASS |
+| User login | PASS |
+| JWT authentication | PASS |
+| AI chatbot response | PASS |
+| Creta vs Alcazar comparison | PASS |
+| Brochure retrieval | PASS |
+| Source citations | PASS |
+| 360-degree camera information query | PASS |
+
+The live comparison test successfully retrieved information from both vehicle brochures and generated a structured response with six brochure excerpts.
+
+---
+
+## 13. Project Links
+
+**Live Application:**  
+https://hyundai-ai-frontend.vercel.app
+
+**GitHub Repository:**  
+https://github.com/Naveendot55/hyundai-ai-automotive-assistant
+
+**Backend Service:**  
+https://hyundai-ai-backend.onrender.com
+
+---
+
+## 14. Assignment Information
+
+**Project:** Hyundai AI Automotive Assistant  
+**Organization:** Cyepro Solutions  
+**Architecture:** MERN + Retrieval-Augmented Generation  
+**AI Integration:** Google Gemini API  
+**Vector Database:** MongoDB Atlas Vector Search  
+**Deployment:** Vercel and Render
+
+---
+
+*Developed as a technical assignment demonstrating full-stack development, AI integration, semantic search, document processing, and production deployment.*

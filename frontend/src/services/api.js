@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -26,7 +26,11 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('hyundai_token');
       localStorage.removeItem('hyundai_user');
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+
+      if (
+        window.location.pathname !== '/login' &&
+        window.location.pathname !== '/register'
+      ) {
         window.location.href = '/login';
       }
     }
